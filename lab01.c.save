@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main (int argc, char*argv[]){
+	if (argc < 2){
+		printf("You must specify a filepath\n");
+		return EXIT_FAILURE;
+	}
+	FILE*fp=fopen(argv[1],"r");
+
+	if(!fp){
+		printf("Error while opening the file %s\n",argv[1]);
+	}
+	char line[1024];
+	int linecount= 0;
+	int quantities[4];	int 
+	int termscount=0;
+	int numingredients=0;
+	char **dishes=NULL;
+	while(fgets(line,1024,fp)){
+		char *word;
+		char *rest=line;
+		if(linecount==0){
+			while (word=strtok_r(rest," ",&rest)){
+			quantities[termscount] = atoi(word);
+			termscount++;
+			}
+		dishes=(char **) malloc(quantities[0] * sizeof(char *));
+		linecount++;
+		}else{
+			word= strtok_r(rest," ", &rest);
+			numingredients = atoi(word);
+			dishes[linecount-1]= (char*) malloc (numingredients* sizeof(char*));
+			for(int i =0; i<numingredients;i++){
+				word= strtok_r(rest," ", &rest);
+				dishes[linecount-1][i]=word;
+				printf("ingredient: %s\n", word);
+			}
+		linecount++;
+		}
+	}
+	for(int i=0;i<4;i++){
+		printf("quantity: %d\n",quantities[i]);
+	}
+	for(int i=0;i<quantities[0],i++){
+		for(int j=0; j<)
+	}
+	fclose(fp);
+}
