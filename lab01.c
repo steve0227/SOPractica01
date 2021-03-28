@@ -99,6 +99,20 @@ void get_p_matriz(int ingredients, int np, char ingredientsdif[ingredients][10],
 	}
 }
 
+void fill_p_0(int ingredients, int np, int p[np][ingredients]){
+	for(int i =0;i<np;i++){
+		for(int j=0;j<ingredients;j++){
+			p[i][j]=0;
+		}
+	}
+}
+
+void fill_ap(int ntpp,int ap[ntpp]){
+	for(int i=0; i<ntpp;i++){
+		ap[i]=i;
+	}
+}
+
 int main (int argc, char*argv[]){
 	if (argc < 2){
 		printf("You must specify a filepath\n");
@@ -115,37 +129,68 @@ int main (int argc, char*argv[]){
 	int ingredients=get_ingredients_quantities(quantities,ingredientsdif,fp);
 	fclose(fp);
 	int np=quantities[0];
-	int ntpp=quantities[1]*2+quantities[2]*3+quantities[3]*4;
+	int p2=quantities[1];
+	int p3=quantities[2];
+	int p4 =quantities[3];
+	int ntpp=2*p2+3*p3+4*p4;
 	int p[np][ingredients];
 	int ap[ntpp];
 
-	int op2=2*quantities[1];
-	int op3=op2+3*quantities[2];
+	fill_p_0(ingredients,np,p);
+	int op3=p2*2;
+	int op4=2*p2+3*p3;
+
 
 	fp=fopen(argv[1],"r");
 	get_p_matriz(ingredients,np,ingredientsdif,p,fp);
 	fclose(fp);
 
-	for(int b=0;b<4;b++){
-		printf("quantity: %d\n",quantities[b]);
-	}
+/*	for(int b=0;b<4;b++){
+		printf("quantity%d:%d\n",b,quantities[b]);
+	}*/
 	for(int c=0;c<ingredients;c++){
-		printf("iterate vector ingredients: %s\n ",ingredientsdif[c]);
+		printf("vector ingredients %d: %s\n ",c ,ingredientsdif[c]);
 	}
-	printf("number of diferent ingredients %d\n",ingredients);
+/*	printf("number of diferent ingredients %d\n",ingredients);*/
 
 	for(int i =0;i<quantities[0];i++){
 		for(int j=0;j<ingredients;j++){
-			if(p[i][j]!=1){
-				printf("0");
-			}
-			else{
-				printf("%d",p[i][j]);
-			}
+			printf("%d",p[i][j]);
 		}
 		printf("\n");
 	}
 
-}
+	fill_ap(ntpp,ap);
+	for(int i=0;i<ntpp;i++){
+		printf("ap: %d\n",ap[i]);
+	}
+	int sum2=0;
+	for(int s2=0;s2<=(p2-1);s2++){
+		for(int j=0;j<ingredients;j++){
+			if(p[ap[2*s2]][j]==1 || p[ap[2*s2+1]][j]==1){
+				sum2++;
+			}
+		}
+	}
+	printf("sum 2 :%d\n",sum2);
+	int sum3=0;
+	for(int i=0;i<=(p3-1);i++){
+		for(int j=0;j<ingredients;j++){
+			if(p[ap[op3+(3*i)]][j]==1 || p[ap[op3+(3*i)+1]][j]==1 || p[ap[op3+(3*i)+2]][j]==1){
+				sum3++;
+			}
+		}
+	}
+	printf("sum 3 :%d\n",sum3);
+	int sum4=0;
+	for(int i=0;i<=(p4-1);i++){
+		for(int j=0;j<ingredients;j++){
+			if(p[ap[op4+(4*i)]][j]==1 || p[ap[op4+(4*i)+1]][j]==1 || p[ap[op4+(4*i)+2]][j]==1 || p[ap[op4+(4*i)+3]][j]==1){
+				sum4++;
+			}
+		}
+	}
+	printf("sum 4 :%d\n",sum4);
 
+}
 
