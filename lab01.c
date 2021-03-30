@@ -231,8 +231,8 @@ void intercambiar(int *p1, int *p2){
 	*p1 = *p2;
 	*p2 = aux;
 }
-
-void permutar(int n, int ntpp,int ap[ntpp], list_t * l) {
+/*Recursivo*/
+/*void permutar(int n, int ntpp,int ap[ntpp], list_t * l) {
 	if(n <= 0) {
 		pushNode(l, ntpp, ap);
 	} else {
@@ -249,8 +249,33 @@ void permutar(int n, int ntpp,int ap[ntpp], list_t * l) {
 		}
 
 	}
-}
+}*/
 
+void permutar(int ntpp,int ap[ntpp], list_t * l) {
+	int aux_ap[ntpp];
+	for(int i=0;i<ntpp;i++){
+		aux_ap[i]=0;
+	}
+	pushNode(l,ntpp,ap);
+	int n=0;
+	while(n<ntpp){
+		if(c[n] < n){
+			if(n%2 == 0){
+				intercambiar(&ap[0], &ap[n]);
+			} else {
+				intercambiar(&ap[c[n]], &ap[n]);
+			}
+			pushNode(l,ntpp,ap);
+			c[n]+=1;
+			n=0;
+		} else{
+			c[n]=0;
+			n +=1
+		}
+
+	}
+
+}
 
 int main (int argc, char*argv[]){
 	if (argc < 2){
@@ -309,7 +334,8 @@ int main (int argc, char*argv[]){
 	test[1] = 2;
 	test[2] = 3;
 	test[3] = 4;*/
-	permutar(ntpp, ntpp, ap, l);
+/*	permutar(ntpp, ntpp, ap, l);*/
+	permutar(ntpp, ap, l);
 	sum_list(l, ingredients, np, p, p2, p3, p4);
 	node_t * max = (node_t *) malloc(sizeof(node_t));
 	max = apMaximo(l);
