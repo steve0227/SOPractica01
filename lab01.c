@@ -113,6 +113,39 @@ void fill_ap(int ntpp,int ap[ntpp]){
 	}
 }
 
+void intercambiar(int *p1, int *p2){
+	int aux = *p1;
+	*p1 = *p2;
+	*p2 = aux;
+}
+
+void imprimir(int ntpp, int ap[ntpp]){
+	for(int i = 0; i < ntpp; i++){
+		printf("%d", ap[i]);
+	}
+}
+
+void permutar(int n, int ntpp,int ap[ntpp]) {
+	if(n <= 0) { 
+		printf("Permutación \n");
+		imprimir(ntpp, ap);
+	} else {
+		for(int i = 0; i < n; i++){
+			permutar(n - 1, ntpp, ap);
+			if(i < n - 1){
+				if(n%2 == 0){
+					intercambiar(&ap[i], &ap[n - 1]);
+				} else {
+					intercambiar(&ap[0], &ap[n - 1]);
+				}
+			}
+
+		}
+
+	}
+}
+
+
 int main (int argc, char*argv[]){
 	if (argc < 2){
 		printf("You must specify a filepath\n");
@@ -191,6 +224,6 @@ int main (int argc, char*argv[]){
 		}
 	}
 	printf("sum 4 :%d\n",sum4);
-
+	permutar(ntpp, ntpp, ap);
 }
 
