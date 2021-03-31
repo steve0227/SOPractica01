@@ -252,9 +252,9 @@ void intercambiar(int *p1, int *p2){
 }*/
 
 void permutar(int ntpp,int ap[ntpp], list_t * l) {
-	int aux_ap[ntpp];
+	int c[ntpp];
 	for(int i=0;i<ntpp;i++){
-		aux_ap[i]=0;
+		c[i]=0;
 	}
 	pushNode(l,ntpp,ap);
 	int n=0;
@@ -270,7 +270,7 @@ void permutar(int ntpp,int ap[ntpp], list_t * l) {
 			n=0;
 		} else{
 			c[n]=0;
-			n +=1
+			n +=1;
 		}
 
 	}
