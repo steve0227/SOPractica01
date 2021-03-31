@@ -1,0 +1,20 @@
+Esta es la matriz de los platos:
+
+1 0 0 0 0 0 
+1 0 0 0 0 0 
+1 1 0 0 1 0 
+0 1 0 1 0 0 
+0 1 0 0 0 0 
+0 1 0 0 0 1 
+0 0 1 1 1 1 
+0 0 1 0 0 0 
+0 0 0 1 0 0 
+0 0 0 1 0 0 
+0 0 0 0 1 0 
+
+Este es el vector de solucion: 1 2 0 3 4 5 
+
+La cantidad de ingredientes totales es: 15
+
+El pedido 0 contiene: Ajo ,Chorizo ,Arroz ,Ensalada ,Tajada ,Aji ,
+El pedido 1 contiene: Cebolla ,Jamon ,Ajo ,Chorizo ,Papa ,Carne ,Arroz ,Huevo ,

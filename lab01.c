@@ -277,6 +277,10 @@ void permutar(int ntpp,int ap[ntpp], list_t * l) {
 
 }
 
+void writeFile(FILE * fp, char * result) {
+	fprintf(fp, "%s\n", result);
+}
+
 int main (int argc, char*argv[]){
 	if (argc < 2){
 		printf("You must specify a filepath\n");
@@ -299,7 +303,7 @@ int main (int argc, char*argv[]){
 	int ntpp=2*p2+3*p3+4*p4;
 	int p[np][ingredients];
 	int ap[ntpp];
-	
+
 	fill_p_0(ingredients,np,p);
 
 
@@ -315,18 +319,8 @@ int main (int argc, char*argv[]){
 	}
 	printf("number of diferent ingredients %d\n",ingredients);*/
 
-	/*for(int i =0;i<quantities[0];i++){
-		for(int j=0;j<ingredients;j++){
-			printf("%d",p[i][j]);
-		}
-		printf("\n");
-	}*/
-
 	fill_ap(ntpp,ap);
-	/*
-	for(int i=0;i<ntpp;i++){
-		printf("ap: %d\n",ap[i]);
-	}*/
+
 	list_t * l = (list_t*) malloc(sizeof(list_t));
 	list_init(l);
 	/*int test[4];
@@ -342,4 +336,83 @@ int main (int argc, char*argv[]){
 	printf("El máximo es: \n");
 	imprimir(max -> ntpp, max -> ap);
 	printf("La suma es: %d \n", max -> sum);
+	FILE * fw = fopen(argv[2], "w");
+	writeFile(fw, "Esta es la matriz de los platos:\n");
+	char * line = (char *) malloc(sizeof(char) * 1024);
+	char * auxLine = (char *) malloc(sizeof(char) * 10);
+	for(int j=0;j<ingredients;j++){
+		strcpy(line, "");
+		for(int i =0;i<quantities[0];i++){
+			sprintf(auxLine, "%d", p[i][j]);
+			strcat(line, auxLine);
+			strcat(line, " ");
+		}
+		writeFile(fw, line);
+	}
+	strcpy(line, "\nEste es el vector de solucion: ");
+	for(int i = 0; i < ntpp; i++){
+		sprintf(auxLine, "%d", max -> ap[i]);
+		strcat(line, auxLine);
+		strcat(line, " ");
+	}
+	strcat(line, "\n");
+	writeFile(fw, line);
+	strcpy(line, "La cantidad de ingredientes totales es: ");
+	sprintf(auxLine, "%d", max -> sum);
+	strcat(line, auxLine);
+	strcat(line, "\n");
+	writeFile(fw, line);
+	int pedido = 0;
+	char * auxLine2 = (char *) malloc(sizeof(char) * 1024);
+	int op3=p2*2;
+	int op4=2*p2+3*p3;
+	for(int s2=0;s2<=(p2-1);s2++){
+		strcpy(auxLine2, "");
+		for(int j=0;j<ingredients;j++){
+			if(p[ap[2*s2]][j]==1 || p[ap[2*s2+1]][j]==1){
+				strcat(auxLine2, ingredientsdif[j]);
+				strcat(auxLine2, " ,");
+			}
+		}
+		sprintf(auxLine, "%d", pedido);
+		strcpy(line, "El pedido ");
+		strcat(line, auxLine);
+		strcat(line, " contiene: ");
+		strcat(line, auxLine2);
+		writeFile(fw, line);
+		pedido++;
+	}
+	for(int i=0;i<=(p3-1);i++){
+		strcpy(auxLine2, "");
+		for(int j=0;j<ingredients;j++){
+			if(p[ap[op3+(3*i)]][j]==1 || p[ap[op3+(3*i)+1]][j]==1 || p[ap[op3+(3*i)+2]][j]==1){
+				strcat(auxLine2, ingredientsdif[j]);
+				strcat(auxLine2, " ,");
+			}
+		}
+		sprintf(auxLine, "%d", pedido);
+		strcpy(line, "El pedido ");
+		strcat(line, auxLine);
+		strcat(line, " contiene: ");
+		strcat(line, auxLine2);
+		writeFile(fw, line);
+		pedido++;
+	}
+	for(int i=0;i<=(p4-1);i++){
+		strcpy(auxLine2, "");
+		for(int j=0;j<ingredients;j++){
+			if(p[ap[op4+(4*i)]][j]==1 || p[ap[op4+(4*i)+1]][j]==1 || p[ap[op4+(4*i)+2]][j]==1 || p[ap[op4+(4*i)+3]][j]==1){
+				strcat(auxLine2, ingredientsdif[j]);
+				strcat(auxLine2, " ,");
+			}
+		}
+		sprintf(auxLine, "%d", pedido);
+		strcpy(line, "El pedido ");
+		strcat(line, auxLine);
+		strcat(line, " contiene: ");
+		strcat(line, auxLine2);
+		writeFile(fw, line);
+		pedido++;
+	}
+	fclose(fw);
 }
