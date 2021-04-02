@@ -12,7 +12,7 @@ Esta es la matriz de los platos:
 0 0 0 1 0 0 
 0 0 0 0 1 0 
 
-Este es el vector de solucion: 1 2 0 3 4 5 
+Este es el vector de solucion: 3 4 1 2 5 0 
 
 La cantidad de ingredientes totales es: 15
 

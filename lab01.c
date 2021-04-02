@@ -15,11 +15,97 @@ typedef struct list{
 	node_t * head;
 } list_t;
 
-void imprimir(int ntpp, int ap[ntpp]){
-	for(int i = 0; i < ntpp; i++){
-		printf("%d", ap[i]);
+
+void pushNode(list_t * l, int ntpp, int ap[ntpp]);
+void list_init(list_t * l);
+
+
+node_t * apMaximo(list_t * l);
+int sumarIngredientes(int ntpp, int ap[ntpp], int ingredients, int platos, int p[platos][ingredients], int p2,int p3, int p4) ;
+void sum_list(list_t * l, int ingredients, int platos, int p[platos][ingredients], int p2,int p3, int p4);
+
+void remove_spaces(char* restrict str_trimed,const char* restrict str_untrimmed);
+int get_ingredients_quantities(int quantities[], char ingredientsdif[20][10], FILE * restrict fp);
+
+void fill_p_matriz(int ingredients, int np, char ingredientsdif[ingredients][10], int p[np][ingredients],int line, char* restrict aux);
+void get_p_matriz(int ingredients, int np, char ingredientsdif[ingredients][10], int p[np][ingredients],FILE* restrict fp);
+void fill_p_0(int ingredients, int np, int p[np][ingredients]);
+
+void fill_ap(int ntpp,int ap[ntpp]);
+void intercambiar(int *p1, int *p2);
+void permutar(int ntpp,int ap[ntpp], list_t * l) ;
+
+void writeFile(FILE * fp, char * result);
+void write_p_in_file(int ingredients,int np, int p[np][ingredients], FILE *fw);
+void write_ap_in_file(int ntpp,int ap[ntpp], FILE *fw);
+void write_ingredients_quantity(int sum, FILE *fw);
+void write_ingredients(int ingredients, int np, int p[np][ingredients], char ingredientsdif[20][10],int ntpp ,int ap[ntpp], int p2, int p3, int p4, FILE *fw );
+
+int main (int argc, char*argv[]){
+	if (argc < 3){
+		printf("You must specify an input filepath and an outpu filepth\n");
+		return EXIT_FAILURE;
 	}
-	printf("\n");
+	FILE *fp=fopen(argv[1],"r");
+
+	if(!fp){
+		printf("Error while opening the file %s\n",argv[1]);
+		return EXIT_FAILURE;
+	}
+
+	int quantities[4];
+	char ingredientsdif[20][10];
+	int ingredients=get_ingredients_quantities(quantities,ingredientsdif,fp);
+	fclose(fp);
+	if(ingredients>0){
+		int np=quantities[0];
+		int p2=quantities[1];
+		int p3=quantities[2];
+		int p4 =quantities[3];
+		int ntpp=2*p2+3*p3+4*p4;
+		int p[np][ingredients];
+		int ap[ntpp];
+
+		fill_p_0(ingredients,np,p);
+		fp=fopen(argv[1],"r");
+		get_p_matriz(ingredients,np,ingredientsdif,p,fp);
+		fclose(fp);
+
+		fill_ap(ntpp,ap);
+
+		list_t * l = (list_t*) malloc(sizeof(list_t));
+		list_init(l);
+		permutar(ntpp, ap, l);
+
+		sum_list(l, ingredients, np, p, p2, p3, p4);
+		node_t * max = (node_t *) malloc(sizeof(node_t));
+		max = apMaximo(l);
+
+
+		FILE * fw = fopen(argv[2], "w");
+		write_p_in_file(ingredients, np, p, fw);
+		write_ap_in_file(ntpp, ap, fw);
+		write_ingredients_quantity(max -> sum, fw);
+		write_ingredients(ingredients, np, p, ingredientsdif, ntpp, ap, p2, p3, p4, fw);
+		fclose(fw);
+	}else{
+		if(ingredients==-1){
+			printf("Error: invalid format in the first line of the input file: %s\n",argv[1]);
+		}
+		if(ingredients==-2){
+			printf("Error: invalid ingredients number (NaN)");
+		}
+		if(ingredients==-3){
+			printf("Error: invalid ingredients number (lower than specified)");
+		}
+		if(ingredients==-4){
+			printf("Error: invalid ingredients number (greater than specified)");
+		}
+		if(ingredients==-5){
+			printf("Error: invalid dishes number");
+		}
+		return EXIT_FAILURE;
+	}
 }
 
 void pushNode(list_t * l, int ntpp, int ap[ntpp]) {
@@ -54,13 +140,6 @@ void list_init(list_t * l) {
 	l -> head = NULL;
 }
 
-void print_list(list_t * l) {
-	node_t * current = l -> head;
-	while(current != NULL) {
-		imprimir(current -> ntpp, current -> ap);
-		current = current -> next;
-	}
-}
 
 int sumarIngredientes(int ntpp, int ap[ntpp], int ingredients, int platos, int p[platos][ingredients], int p2,int p3, int p4) {
 	int op3=p2*2;
@@ -92,7 +171,6 @@ int sumarIngredientes(int ntpp, int ap[ntpp], int ingredients, int platos, int p
 	}
 	return sum2 + sum3 + sum4;
 }
-
 void sum_list(list_t * l, int ingredients, int platos, int p[platos][ingredients], int p2,int p3, int p4) {
 	node_t * current = l -> head;
 	while(current != NULL) {
@@ -141,17 +219,25 @@ int get_ingredients_quantities(int quantities[], char ingredientsdif[20][10], FI
 		char *rest=line;
 		if(linecount==0){
 			while (word=strtok_r(rest," ",&rest)){
-			quantities[termscount] = atoi(word);
-			termscount++;
+				quantities[termscount] = atoi(word);
+				termscount++;
 			}
-		linecount++;
+			if((2*quantities[1]+3*quantities[2]+4*quantities[3])!=quantities[0]){
+				return -1;
+			}
+			linecount++;
 		}else{
 			word= strtok_r(rest," ", &rest);
 			numingredients = atoi(word);
-
+			if(numingredients==0){
+				return -2;/*NaN*/
+			}
 			for(int i =0; i<numingredients;i++){
 				word= strtok_r(rest," ", &rest);
 				band=false;
+				if((word == NULL) || (word[0]=='\0')){
+					return -3;/*menos palabras*/
+				}
 				char *aux=(char*)malloc(sizeof(char*));
 				remove_spaces(aux,word);
 				for(int a=0;a<ingredients;a++){
@@ -164,22 +250,27 @@ int get_ingredients_quantities(int quantities[], char ingredientsdif[20][10], FI
 					strcpy(ingredientsdif[ingredients],aux);
 					ingredients++;
 				}
+				/*if(i==numingredients-1){
+					word= strtok_r(rest," ", &rest);
+					if((word != NULL) || (word[0]!='\0')){
+						return -4;/*mas palabras
+					}
+				}*/
 			}
+		linecount++;
 		}
+	}
+	if((linecount-1)!=quantities[0]){
+		return -5; /*no cocinciden los platos con las lineas*/
 	}
 	return ingredients;
 }
 void fill_p_matriz(int ingredients, int np, char ingredientsdif[ingredients][10], int p[np][ingredients],int line, char* restrict aux){
 	for(int i=0;i<ingredients;i++){
 		int result=strcmp(ingredientsdif[i],aux);
-/*		printf("vector %s\n",ingredientsdif[i]);
-		printf("palabra %s\n",aux);
-		printf("result %d\n",result);*/
 		if(result==0){
 			p[line-1][i]=1;
 			i=ingredients;
-/*			printf("i value %d\n",i);
-			printf("p value %d\n",p[line][i]);*/
 		}
 	}
 }
@@ -193,9 +284,6 @@ void get_p_matriz(int ingredients, int np, char ingredientsdif[ingredients][10],
 		char *word;
 		char *rest=line;
 		if(linecount==0){
-/*			word=strtok_r(rest," ",&rest);
-			int np = atoi(word);
-			int p[np][ingredients]*/
 			linecount++;
 		}else{
 			word= strtok_r(rest," ", &rest);
@@ -231,25 +319,7 @@ void intercambiar(int *p1, int *p2){
 	*p1 = *p2;
 	*p2 = aux;
 }
-/*Recursivo*/
-/*void permutar(int n, int ntpp,int ap[ntpp], list_t * l) {
-	if(n <= 0) {
-		pushNode(l, ntpp, ap);
-	} else {
-		for(int i = 0; i < n; i++){
-			permutar(n - 1, ntpp, ap, l);
-			if(i < n - 1){
-				if(n%2 == 0){
-					intercambiar(&ap[i], &ap[n - 1]);
-				} else {
-					intercambiar(&ap[0], &ap[n - 1]);
-				}
-			}
 
-		}
-
-	}
-}*/
 
 void permutar(int ntpp,int ap[ntpp], list_t * l) {
 	int c[ntpp];
@@ -280,88 +350,47 @@ void permutar(int ntpp,int ap[ntpp], list_t * l) {
 void writeFile(FILE * fp, char * result) {
 	fprintf(fp, "%s\n", result);
 }
-
-int main (int argc, char*argv[]){
-	if (argc < 2){
-		printf("You must specify a filepath\n");
-		return EXIT_FAILURE;
-	}
-	FILE *fp=fopen(argv[1],"r");
-
-	if(!fp){
-		printf("Error while opening the file %s\n",argv[1]);
-	}
-
-	int quantities[4];
-	char ingredientsdif[20][10];
-	int ingredients=get_ingredients_quantities(quantities,ingredientsdif,fp);
-	fclose(fp);
-	int np=quantities[0];
-	int p2=quantities[1];
-	int p3=quantities[2];
-	int p4 =quantities[3];
-	int ntpp=2*p2+3*p3+4*p4;
-	int p[np][ingredients];
-	int ap[ntpp];
-
-	fill_p_0(ingredients,np,p);
-
-
-	fp=fopen(argv[1],"r");
-	get_p_matriz(ingredients,np,ingredientsdif,p,fp);
-	fclose(fp);
-
-	/*for(int b=0;b<4;b++){
-		printf("quantity%d:%d\n",b,quantities[b]);
-	}
-	for(int c=0;c<ingredients;c++){
-		printf("vector ingredients %d: %s\n ",c ,ingredientsdif[c]);
-	}
-	printf("number of diferent ingredients %d\n",ingredients);*/
-
-	fill_ap(ntpp,ap);
-
-	list_t * l = (list_t*) malloc(sizeof(list_t));
-	list_init(l);
-	/*int test[4];
-	test[0] = 1;
-	test[1] = 2;
-	test[2] = 3;
-	test[3] = 4;*/
-/*	permutar(ntpp, ntpp, ap, l);*/
-	permutar(ntpp, ap, l);
-	sum_list(l, ingredients, np, p, p2, p3, p4);
-	node_t * max = (node_t *) malloc(sizeof(node_t));
-	max = apMaximo(l);
-	printf("El máximo es: \n");
-	imprimir(max -> ntpp, max -> ap);
-	printf("La suma es: %d \n", max -> sum);
-	FILE * fw = fopen(argv[2], "w");
+void write_p_in_file(int ingredients,int np, int p[np][ingredients], FILE *fw){
 	writeFile(fw, "Esta es la matriz de los platos:\n");
 	char * line = (char *) malloc(sizeof(char) * 1024);
 	char * auxLine = (char *) malloc(sizeof(char) * 10);
 	for(int j=0;j<ingredients;j++){
 		strcpy(line, "");
-		for(int i =0;i<quantities[0];i++){
+		for(int i =0;i<np ;i++){
 			sprintf(auxLine, "%d", p[i][j]);
 			strcat(line, auxLine);
 			strcat(line, " ");
 		}
 		writeFile(fw, line);
 	}
+}
+void write_ap_in_file(int ntpp,int ap[ntpp], FILE *fw){
+	char * line = (char *) malloc(sizeof(char) * 1024);
+	char * auxLine = (char *) malloc(sizeof(char) * 10);
 	strcpy(line, "\nEste es el vector de solucion: ");
 	for(int i = 0; i < ntpp; i++){
-		sprintf(auxLine, "%d", max -> ap[i]);
+		sprintf(auxLine, "%d", ap[i]);
 		strcat(line, auxLine);
 		strcat(line, " ");
 	}
 	strcat(line, "\n");
 	writeFile(fw, line);
+}
+
+void write_ingredients_quantity(int sum, FILE *fw){
+	char * line = (char *) malloc(sizeof(char) * 1024);
+	char * auxLine = (char *) malloc(sizeof(char) * 10);
 	strcpy(line, "La cantidad de ingredientes totales es: ");
-	sprintf(auxLine, "%d", max -> sum);
+	sprintf(auxLine, "%d", sum);
 	strcat(line, auxLine);
 	strcat(line, "\n");
 	writeFile(fw, line);
+}
+
+void write_ingredients(int ingredients, int np, int p[np][ingredients], char ingredientsdif[20][10],int ntpp ,int ap[ntpp], int p2, int p3, int p4, FILE *fw ){
+
+	char * line = (char *) malloc(sizeof(char) * 1024);
+	char * auxLine = (char *) malloc(sizeof(char) * 10);
 	int pedido = 0;
 	char * auxLine2 = (char *) malloc(sizeof(char) * 1024);
 	int op3=p2*2;
@@ -414,5 +443,5 @@ int main (int argc, char*argv[]){
 		writeFile(fw, line);
 		pedido++;
 	}
-	fclose(fw);
+
 }
