@@ -1,4 +1,4 @@
-Esta es la matriz de los platos:
+Esta es la matriz de los dishes:
 
 1 0 0 0 0 0 
 1 0 0 0 0 0 

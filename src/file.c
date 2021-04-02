@@ -6,6 +6,17 @@
 #include <string.h>
 #include <stdbool.h>
 
+void removeSpaces(char* restrict str_trimed, const char* restrict str_untrimmed) {
+	while(*str_untrimmed != '\0') {
+		if(!isspace(*str_untrimmed)) {
+			*str_trimed = *str_untrimmed;
+			str_trimed++;
+		}
+		str_untrimmed++;
+	}
+	*str_trimed = '\0';
+}
+
 int getIngredientsQuantities(int quantities[], char ingredientsdif[20][10], FILE * restrict fp) {
 	char line[1024];
 	int linecount = 0;
@@ -63,17 +74,6 @@ int getIngredientsQuantities(int quantities[], char ingredientsdif[20][10], FILE
 		return -5; /*no cocinciden los platos con las lineas*/
 	}
 	return ingredients;
-}
-
-void removeSpaces(char* restrict str_trimed, const char* restrict str_untrimmed) {
-	while(*str_untrimmed != '\0') {
-		if(!isspace(*str_untrimmed)) {
-			*str_trimed = *str_untrimmed;
-			str_trimed++;
-		}
-		str_untrimmed++;
-	}
-	*str_trimed = '\0';
 }
 
 void getPMatrix(int ingredients, int np, char ingredientsdif[ingredients][10], int p[np][ingredients], FILE* restrict fp){
